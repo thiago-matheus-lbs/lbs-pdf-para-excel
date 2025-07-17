@@ -65,14 +65,14 @@ class ModernPDFExtractorApp:
         self.btn_exportar = ttk.Button(self.frame_main, text="Exportar para Excel", command=self.exportar_excel)
         self.btn_exportar.grid(row=6, column=0, sticky="e")
 
-    #Funcao para carregar o PDF
+    #funcao para carregar o PDF
     def carregar_pdf(self):
         
         #path recebe o valor da função askopenfilename, o valor é o caminho do arquivo selecionado na caixa de diálogo (filedialog)
         #filetypes especifica o filtro para listar apenas arquivos .PDF
         path = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
         
-        #verifica se o valor de path não está nulo
+        #verifica se o valor de path não está nulo (se está nulo, nenhum arquivo foi selecionado)
         if path:
             
             #a variável pdf_path recebe o valor de path (que foi recebido da função askopenfilename)
@@ -82,30 +82,50 @@ class ModernPDFExtractorApp:
             messagebox.showinfo("PDF Selecionado", f"Arquivo carregado: {os.path.basename(self.pdf_path)}")
 
     def buscar_no_pdf(self):
+        
+        #verifica se o valor de pdf_path está nulo (caso não tenha entrado na condição if path, ou seja, nenhum arquivo selecionado)
         if not self.pdf_path:
             messagebox.showwarning("Aviso", "Selecione um arquivo PDF primeiro.")
             return
-
+        
+        #palavras é um array que recebe as strings correspondentes de acordo com o delimitador ','
         palavras = [p.strip().lower() for p in self.entry_palavras.get().split(',') if p.strip()]
+        
+        #se o array palavras estiver vazio, significa que o campo entry_palavras também está vazio
         if not palavras:
             messagebox.showwarning("Aviso", "Digite pelo menos uma palavra-chave.")
             return
-
+            
+        #limpa o campo de resultados
         self.resultados.clear()
         self.txt_resultado.delete(1.0, tk.END)
 
         try:
+            #aponta o caminho do PDF (pdf_path), abre o arquivo e atribui a pdf
             with pdfplumber.open(self.pdf_path) as pdf:
+                
+                #laço de repeticao para percorrer todas as páginas do PDF, e cada uma corresponderá a variável pagina
                 for pagina in pdf.pages:
+                    
+                    #extrair o texto de cada página por vez
                     texto = pagina.extract_text()
+                    
+                    #se o texto não for nulo
                     if texto:
+                        #divide a variável texto por quebra de linha, e cada valor retornado (correspondente a uma linha) está atribuído a variável linha
                         for linha in texto.split("\n"):
+                            
+                            #a funcao any verifica se há correspondencias entre cada string do array palavras, com cada linha do texto
                             if any(p in linha.lower() for p in palavras):
+                                #se houver alguma correspondencia, a linha do PDF será atribuída a resultados
                                 self.resultados.append({"Linha": linha})
                                 self.txt_resultado.insert(tk.END, linha + "\n")
 
+            #verifica se resultados está nulo (ou seja, se não houve correspondencia na verificação any)
             if not self.resultados:
                 self.txt_resultado.insert(tk.END, "Nenhum resultado encontrado.")
+                
+        #em caso de erro, printar uma mensagem
         except Exception as e:
             messagebox.showerror("Erro", f"Erro ao processar o PDF: {e}")
 
