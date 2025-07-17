@@ -68,16 +68,17 @@ class ModernPDFExtractorApp:
     #Funcao para carregar o PDF
     def carregar_pdf(self):
         
-        #path recebe o valor da função askopenfilename, que é o arquivo selecionado na caixa de diálogo (filedialog)
+        #path recebe o valor da função askopenfilename, o valor é o caminho do arquivo selecionado na caixa de diálogo (filedialog)
         #filetypes especifica o filtro para listar apenas arquivos .PDF
         path = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
         
         #verifica se o valor de path não está nulo
         if path:
             
-            #a variável pdf_path recebe o valor de path, que foi recebido da função askopenfilename
+            #a variável pdf_path recebe o valor de path (que foi recebido da função askopenfilename)
             self.pdf_path = path
-            #
+            
+            #caixa de diálogo para printar o valor de pdf_path (caminho do arquivo PDF)
             messagebox.showinfo("PDF Selecionado", f"Arquivo carregado: {os.path.basename(self.pdf_path)}")
 
     def buscar_no_pdf(self):
