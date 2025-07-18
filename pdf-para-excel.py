@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, colorchooser, scrolledtext
+from PIL import Image, ImageTk
 import pdfplumber
 import pandas as pd
 import os
@@ -9,24 +10,29 @@ class ModernPDFExtractorApp:
         self.root = root
         self.root.title("LBS - Extrator de Dados de PDF para Excel")
         self.root.geometry("900x600")
-        self.root.configure(bg="#2e3440")
+        self.root.configure(bg="#B21F16")
 
         style = ttk.Style()
         style.theme_use('clam')
-
-        style.configure("TLabel", background="#2e3440", foreground="#d8dee9", font=("Segoe UI", 11))
+        
+        im=Image.open("favicon.png")
+        ft=ImageTk.PhotoImage(im)
+        
+        #style.configure("TLabel", background="white", font=("Segoe UI", 11))
         style.configure("TButton", font=("Segoe UI Semibold", 10), padding=6)
         style.configure("TEntry", font=("Segoe UI", 11))
-        style.configure("TFrame", background="#3b4252")
+        style.configure("TFrame", background="#B21F16")
         style.map("TButton",
                   background=[('active', '#81a1c1')],
                   foreground=[('active', '#2e3440')])
 
         # Frame do logo
+        
         self.frame_logo = ttk.Frame(root, width=120, height=120, style="TFrame", relief="ridge")
         self.frame_logo.grid(row=0, column=0, rowspan=7, padx=(20,10), pady=20, sticky="n")
         self.frame_logo.grid_propagate(False)
-        logo_label = ttk.Label(self.frame_logo, text="LOGO\nAqui", anchor="center", font=("Segoe UI Black", 14), foreground="#88c0d0", background="#3b4252")
+        logo_label = ttk.Label(self.frame_logo, image=ft, anchor="center", font=("Segoe UI Black", 14))
+        logo_label.image=ft
         logo_label.place(relx=0.5, rely=0.5, anchor="center")
 
         # Frame principal
@@ -62,7 +68,7 @@ class ModernPDFExtractorApp:
         self.txt_resultado.grid(row=5, column=0, sticky="nsew", pady=(0,10))
         self.frame_main.grid_rowconfigure(5, weight=1)
 
-        self.btn_exportar = ttk.Button(self.frame_main, text="Exportar para Excel", command=self.exportar_excel)
+        self.btn_exportar = ttk.Button(self.frame_main, text="Exportar para CSV", command=self.exportar_excel)
         self.btn_exportar.grid(row=6, column=0, sticky="e")
 
     #funcao para carregar o PDF
@@ -134,13 +140,13 @@ class ModernPDFExtractorApp:
             messagebox.showwarning("Aviso", "Nenhum dado para exportar.")
             return
 
-        caminho = filedialog.asksaveasfilename(defaultextension=".xlsx",
-                                               filetypes=[("Excel Files", "*.xlsx")],
+        caminho = filedialog.asksaveasfilename(defaultextension=".csv",
+                                               filetypes=[("CSV Files", "*.csv")],
                                                title="Salvar como")
         if caminho:
             df = pd.DataFrame(self.resultados)
             try:
-                df.to_excel(caminho, index=False)
+                df.to_csv(caminho, index=False)
                 messagebox.showinfo("Sucesso", f"Dados exportados para: {caminho}")
             except Exception as e:
                 messagebox.showerror("Erro", f"Erro ao exportar: {e}")
